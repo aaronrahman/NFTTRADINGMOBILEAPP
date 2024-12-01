@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useToast } from "@/components/ui/use-toast";
+import { generateUniqueId } from "@/lib/utils/nft";
 
 interface LoginFormProps {
   onSubmit?: (data: { email: string; password: string }) => void;
@@ -11,23 +14,49 @@ interface LoginFormProps {
   className?: string;
 }
 
-const LoginForm = ({
-  onSubmit = () => {},
-  isLoading = false,
-  className = "",
-}: LoginFormProps) => {
+const LoginForm = ({ onSubmit = () => {}, className = "" }: LoginFormProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const login = useAuthStore((state) => state.login);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    // In a real app, you would verify credentials here
-    navigate("/dashboard");
+    setIsLoading(true);
+
+    try {
+      // In a real app, you would validate credentials against a backend
+      // For now, we'll simulate a successful login
+      const user = {
+        id: generateUniqueId(),
+        email: formData.email,
+        username: formData.email.split("@")[0],
+        purpleCoins: 1000, // Starting balance
+        createdAt: new Date().toISOString(),
+      };
+
+      login(user);
+      onSubmit(formData);
+      navigate("/dashboard");
+
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully logged in.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Invalid email or password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

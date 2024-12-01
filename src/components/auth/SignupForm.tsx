@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useToast } from "@/components/ui/use-toast";
+import { generateUniqueId } from "@/lib/utils/nft";
 
 interface SignupFormProps {
   onSubmit?: (data: {
@@ -19,10 +22,12 @@ interface SignupFormProps {
 
 const SignupForm = ({
   onSubmit = () => {},
-  isLoading = false,
   className = "",
 }: SignupFormProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const login = useAuthStore((state) => state.login);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -31,11 +36,38 @@ const SignupForm = ({
     acceptTerms: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    // In a real app, you would create the account here
-    navigate("/dashboard");
+    setIsLoading(true);
+
+    try {
+      // In a real app, you would create an account in the backend
+      // For now, we'll simulate a successful registration
+      const user = {
+        id: generateUniqueId(),
+        email: formData.email,
+        username: formData.username,
+        purpleCoins: 1000, // Starting bonus
+        createdAt: new Date().toISOString(),
+      };
+
+      login(user);
+      onSubmit(formData);
+      navigate("/dashboard");
+
+      toast({
+        title: "Welcome to Purple Coin!",
+        description: "Your account has been created with 1000 Purple Coins!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create account",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
