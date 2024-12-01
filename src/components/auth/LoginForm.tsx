@@ -10,7 +10,6 @@ import { generateUniqueId } from "@/lib/utils/nft";
 
 interface LoginFormProps {
   onSubmit?: (data: { email: string; password: string }) => void;
-  isLoading?: boolean;
   className?: string;
 }
 
@@ -30,24 +29,27 @@ const LoginForm = ({ onSubmit = () => {}, className = "" }: LoginFormProps) => {
     setIsLoading(true);
 
     try {
-      // In a real app, you would validate credentials against a backend
-      // For now, we'll simulate a successful login
+      // For demo purposes, we'll simulate a successful login
       const user = {
         id: generateUniqueId(),
         email: formData.email,
         username: formData.email.split("@")[0],
-        purpleCoins: 1000, // Starting balance
+        purpleCoins: 1000,
         createdAt: new Date().toISOString(),
       };
 
       login(user);
       onSubmit(formData);
-      navigate("/dashboard");
 
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
+
+      // Important: Navigate after the state is updated
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
     } catch (error) {
       toast({
         title: "Error",

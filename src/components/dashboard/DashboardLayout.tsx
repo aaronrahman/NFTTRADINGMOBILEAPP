@@ -9,12 +9,19 @@ import {
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { user, logout } = useAuthStore();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -26,7 +33,6 @@ const DashboardLayout = () => {
   };
 
   if (!user) {
-    navigate("/");
     return null;
   }
 
